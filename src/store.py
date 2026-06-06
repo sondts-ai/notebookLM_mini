@@ -22,7 +22,7 @@ INDEXED_PAYLOAD_FIELDS={
 
 class VectorStoreManger:
     @lru_cache
-    def get_embbedding(self):
+    def get_embbeddings(self):
         return HuggingFaceEmbeddings(
             model_name=settings.embedding_model,
             model_kwargs={"device":settings.hf_device},
