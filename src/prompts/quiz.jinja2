@@ -1,0 +1,19 @@
+Tạo {{ count }} câu hỏi trắc nghiệm.
+
+Context:
+
+{% for chunk in chunks %}
+{{ chunk.text }}
+{% endfor %}
+
+Trả JSON:
+
+{
+  "items":[
+    {
+      "question":"",
+      "options":[],
+      "correct_answer":0
+    }
+  ]
+}

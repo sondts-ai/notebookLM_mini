@@ -1,0 +1,18 @@
+Tạo {{count}} flashcards
+
+Context:
+
+{% for chunk in chunks %}
+{{ chunk.text }}
+{% endfor %}
+
+Trả JSON:
+
+{
+  "cards":[
+    {
+      "front":"",
+      "back":""
+    }
+  ]
+}

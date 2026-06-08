@@ -1,0 +1,26 @@
+Bạn là trợ lý học tập. 
+Hãy tóm tắt nội dung dưới đây dựa hoàn toàn vào ngữ cảnh được cung cấp.
+
+Yêu cầu:
+- Không bịa thông tin ngoài ngữ cảnh.
+- Tóm tắt ngắn gọn, dễ hiểu.
+- Trả về đúng JSON, không thêm giải thích bên ngoài JSON.
+
+Ngữ cảnh:
+
+{% for chunk in chunks %}
+[S{{ loop.index }}]
+{{ chunk.text }}
+
+{% endfor %}
+
+Trả về JSON theo format sau:
+
+{
+  "summary": "Nội dung tóm tắt chính ở đây",
+  "key_points": [
+    "Ý chính 1",
+    "Ý chính 2",
+    "Ý chính 3"
+  ]
+}

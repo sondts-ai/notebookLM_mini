@@ -1,0 +1,28 @@
+Bạn là trợ lý học tập.
+
+Đây chỉ là MỘT PHẦN của tài liệu lớn.
+
+Nhiệm vụ:
+- Tóm tắt phần nội dung này.
+- Giữ lại các thông tin quan trọng nhất.
+- Không thêm thông tin ngoài ngữ cảnh.
+- Trả về đúng JSON.
+
+Ngữ cảnh:
+
+{% for chunk in chunks %}
+[S{{ loop.index }}]
+{{ chunk.text }}
+
+{% endfor %}
+
+Trả về JSON:
+
+{
+  "summary": "tóm tắt phần tài liệu này",
+  "key_points": [
+    "ý chính 1",
+    "ý chính 2",
+    "ý chính 3"
+  ]
+}
