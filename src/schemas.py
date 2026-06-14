@@ -1,3 +1,6 @@
+from typing import Literal
+from pydantic import BaseModel, Field, model_validator
+
 class ChunkMetadata(BaseModel):
     document_id: str
     filename: str
@@ -68,3 +71,14 @@ class FlashcardSet(BaseModel):
     cards: list[Flashcard] = Field(default_factory=list)
     citations: list[Citation] = Field(default_factory=list)
     chunks: list[RetrievedChunk] = Field(default_factory=list)
+
+class DocumentInfo(BaseModel):
+    document_id: str | None = None
+    filename: str
+    pages: int | None = None
+    chunks: int | None = None
+
+
+class UploadResponse(BaseModel):
+    filename: str
+    chunks_indexed: int

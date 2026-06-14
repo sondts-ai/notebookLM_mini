@@ -69,13 +69,13 @@ class SemanticWrapper:
         return splitter.split_text(text)
 
 
-def evaluate_strategy(test_cases, documents, embeddings, strategy_id, chunker):
+def evaluate_strategy(test_cases, documents, embeddings, strategy_id, chunker, qdrant, retrieve, llm, evaluation):
     collection_name = f"rag_chunks__{strategy_id}"
 
     chunks = chunker.split_documents(documents)
 
     for chunk in chunks:
-        vector = embed(chunk.page_content)
+        vector = embeddings.embed_query(chunk.page_content)
 
         qdrant.insert(
             collection_name=collection_name,

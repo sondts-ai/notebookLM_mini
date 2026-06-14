@@ -3,11 +3,11 @@ from pathlib import Path
 
 import typer
 
-from export import export
-from filters import MetadataFilter, filters_to_dict
-from indexing import ingest as ingest_data_dir
-from rag import answer, retrieve
-from learning import sumamarize as summarize_learning
+from src.export import export
+from src.filters import MetadataFilter, filters_to_dict
+from src.indexing import ingest as ingest_data_dir
+from src.rag import answer, retrieve
+from src.learning import sumamarize as summarize_learning
 
 app=typer.Typer()
 
@@ -54,7 +54,7 @@ def ask(
     result = answer(
         question,
         k=k,
-        filters=_parse_filters(filters),
+        filters=_parser_filters(filters),
     )
 
     _print_answer(result.answer)
@@ -71,7 +71,7 @@ def debug_retrieval(
     chunks = retrieve(
         question,
         k=k,
-        filters=_parse_filters(filters),
+        filters=_parser_filters(filters),
     )
 
     if as_json:
@@ -98,7 +98,7 @@ def summarize(
     result = summarize_learning(
         document=document,
         query=query,
-        filters=_parse_filters(filters),
+        filters=_parser_filters(filters),
         k=k,
     )
 

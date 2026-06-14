@@ -2,18 +2,18 @@ from functools import lru_cache
 from pathlib import Path
 
 from jinja2 import Environment, StrictUndefined,FileSystemLoader
-from schemas import RagAnswer,RetrievedChunk,Citation,ChunkMetadata
-from filters import filters_to_qdrant
-from llm import invoke_llm
-from store import VectorStoreManger
-from config import Settings
+from src.schemas import RagAnswer,RetrievedChunk,Citation,ChunkMetadata
+from src.filters import filters_to_qdrant
+from src.llm import invoke_llm
+from src.store import VectorStoreManager
+from src.config import Settings
 
 PROMPTS_DIR=Path("src/prompts")
 ANSWER_TEMPLATE="answer.jinja2"
 
-store=VectorStoreManger()
+store=VectorStoreManager()
 
-def retrive(query,k=None,filters=None,collection_name=None):
+def retrieve(query,k=None,filters=None,collection_name=None):
     hits=store.get_vector_store(collection_name).similarity_search_with_score(
         query=query,
         k=k or Settings.top_k,
@@ -96,7 +96,7 @@ def format_citation(chunks):
     ]
 
 def answer(question,k=None,filters=None,collection_name=None):
-    chunks=retrive(query,k=k,filters=filters,collection_name=collection_name)
+    chunks=retrieve(query=question,k=k,filters=filters,collection_name=collection_name)
 
     if not chunks:
         return RagAnswer(
@@ -119,7 +119,7 @@ def answer(question,k=None,filters=None,collection_name=None):
     return RagAnswer(
         question=question,
         answer=text.strip(),
-        citations=format_citations(
+        citations=format_citation(
             chunks
         ),
         chunks=chunks

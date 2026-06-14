@@ -1,7 +1,7 @@
 from typing import Literal
 from pathlib import Path
 
-from schemas import Summary, QuizSet, FlashcardSet
+from src.schemas import Summary, QuizSet, FlashcardSet
 
 
 ExportFormat = Literal["text", "md", "json"]

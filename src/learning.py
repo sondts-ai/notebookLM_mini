@@ -1,11 +1,11 @@
 import json 
 from  pydantic import ValidationError
-from config import Settings
+from src.config import Settings
 
-from rag import retrive,fetch_all_chunk,render_prompt,format_citation
-from llm import invoke_llm
+from src.rag import retrieve,fetch_all_chunk,render_prompt,format_citation
+from src.llm import invoke_llm
 
-from schemas import Summary,QuizItem,QuizSet,Flashcard,FlashcardSet
+from src.schemas import Summary,QuizItem,QuizSet,Flashcard,FlashcardSet
 
 SUMMARY_SINGLE_TEMPLATE = (
     "summary_single.jinja2"
@@ -16,7 +16,7 @@ SUMMARY_MAP_TEMPLATE=(
 SUMMARY_REDUCE_TEMPLATE = (
     "summary_reduce.jinja2"
 )
-QUIZ_TEMPLATE = "quiz.jinja2"
+QUIZ_TEMPLATE = ("quiz.jinja2")
 FLASHCARDS_TEMPLATE = (
     "flashcards.jinja2"
 )
@@ -27,7 +27,7 @@ def _resolve_target(document,query,filters,k,retrive_k):
     if document:
         effective_filters["filename"]=document
     if query:
-        chunks=retrive(query,k=k or retrive_k,filters=effective_filters)
+        chunks=retrieve(query,k=k or retrive_k,filters=effective_filters)
         return chunks,"query",query
     if effective_filters:
         chunks=fetch_all_chunk(filters=effective_filters)
@@ -125,11 +125,11 @@ def sumamarize(document=None,query=None,filters=None,k=None):
         target=target,
         summary=summary_text,
         key_points=key_points,
-        citations=format_citations(chunks),
+        citations=format_citation(chunks),
         chunks=chunks
         )
 
-def generate_quiz(document=None,query=None,count=None,k=None):
+def generate_quiz(document=None,query=None,filters=None,count=None,k=None):
     chunks,scope,target=_resolve_target(document,query,filters,k,Settings.summarize_retrieval_k)
     n=count or Settings.quiz_default_count
     valid_markers={f"S{i}" for i in range(1, len(chunks) + 1)}
@@ -138,7 +138,7 @@ def generate_quiz(document=None,query=None,count=None,k=None):
     items=_validate_items(payload, "items", QuizItem, "question", "quiz items",valid_markers)
 
     return QuizSet(scope=scope, target=target, items=items, chunks=chunks,
-                    citations=format_citations(chunks))
+                    citations=format_citation(chunks))
 
 def generate_flashcard(document=None,query=None,count=None,k=None):
     chunks,scope,target=_resolve_target(document,query,filters,k,Settings.summarize_retrieval_k)

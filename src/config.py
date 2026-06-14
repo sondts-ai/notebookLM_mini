@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     storage_dir:Path=Path("storage/qdrant")
     qdrant_collection:str="rag_chunks"
 
-    chunk_size:int =Field(default=100,ge=100)
-    chunk_overlap:int=Field(default=150,ge=0)
+    chunk_size:int =Field(default=500,ge=100)
+    chunk_overlap:int=Field(default=50,ge=0)
     top_k:int=Field(default=5,ge=1,le=64)
 
     embedding_model:str="GreenNode/GreenNode-Embedding-Large-VN-Mixed-V1"
@@ -44,7 +44,7 @@ class Settings(BaseSettings):
         if self.hf_device < -1:
              raise ValueError("hf_device must be -1 for CPU or >= 0 for CUDA.")
         if self.llm_provider == "gemini" and not self.google_api_key:
-            raise ValueError("GOOGLE_API_KEY is required when llm_provider=’gemini’.")
+            raise ValueError("GOOGLE_API_KEY is required when llm_provider=gemini")
         return self
 
 @lru_cache(maxsize=1)

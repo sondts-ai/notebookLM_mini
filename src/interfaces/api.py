@@ -1,11 +1,11 @@
-from fastapi import FastAPI,Uploadfile,File
-from pydantic import BaseModel,Field
+from fastapi import FastAPI, UploadFile, File
+from pydantic import BaseModel, Field
 
-from filters import MetadataFilter,filters_to_dict
-from indexing import save_and_ingest_pdf
-from rag import answer
-from learning import sumamarize as sumamarize_learning,generate_quiz,generate_flashcard
-from schemas import (
+from src.filters import MetadataFilter, filters_to_dict
+from src.indexing import save_and_ingest_pdf
+from src.rag import answer
+from src.learning import sumamarize as summarize_learning, generate_quiz, generate_flashcard
+from src.schemas import (
     RagAnswer,
     Summary,
     QuizSet,
@@ -13,13 +13,14 @@ from schemas import (
     DocumentInfo,
     UploadResponse,
 )
-from store import list_documents
+from src.store import list_documents
 
-# request schemas
-class Askrequest(BaseModel):
-    question:str=Field(min_length=1)
-    k:int| None=Field(default=None,ge=1,le=64)
-    filters:MetadataFilter| None=None
+
+class AskRequest(BaseModel):
+    question: str = Field(min_length=1)
+    k: int | None = Field(default=None, ge=1, le=64)
+    filters: MetadataFilter | None = None
+
 
 class SummarizeRequest(BaseModel):
     document: str | None = None
@@ -39,30 +40,29 @@ class QuizRequest(BaseModel):
 class FlashcardsRequest(QuizRequest):
     pass
 
-app=FastAPI(
+
+app = FastAPI(
     title="RAG Learning API",
     description="Grounded Q&A, summaries, quizzes, and flashcards over indexed PDFs.",
-    verstion="0.1.0"
+    version="0.1.0",
 )
 
-## End point
 
 @app.get("/health")
 def health():
-    return {"status":"ok"}
-    
-@app.get("documents",response_model=list[DocumentInfo])
+    return {"status": "ok"}
+
+
+@app.get("/documents", response_model=list[DocumentInfo])
 def documents():
     return list_documents()
 
-@app.post("upload",response_model=UploadResponse)
-async def upload(file:Uploadfile=File(...)):
-    content=await file.read()
 
-    return save_and_ingest_pdf(
-        content,
-        file.filename or ""
-    )
+@app.post("/upload", response_model=UploadResponse)
+async def upload(file: UploadFile = File(...)):
+    content = await file.read()
+    return save_and_ingest_pdf(content, file.filename or "")
+
 
 @app.post("/ask", response_model=RagAnswer)
 def ask(req: AskRequest):
@@ -72,14 +72,16 @@ def ask(req: AskRequest):
         filters=filters_to_dict(req.filters),
     )
 
-@app.post("/summarize",response_model=Summary)
-def summarize(req:SummarizeRequest):
-    return sumamarize_learning(
+
+@app.post("/summarize", response_model=Summary)
+def summarize(req: SummarizeRequest):
+    return summarize_learning(
         document=req.document,
         query=req.query,
         filters=filters_to_dict(req.filters),
-        k=req.k
+        k=req.k,
     )
+
 
 @app.post("/quiz", response_model=QuizSet)
 def quiz(req: QuizRequest):
@@ -94,11 +96,10 @@ def quiz(req: QuizRequest):
 
 @app.post("/flashcards", response_model=FlashcardSet)
 def flashcards(req: FlashcardsRequest):
-    return generate_flashcards(
+    return generate_flashcard(
         document=req.document,
         query=req.query,
         filters=filters_to_dict(req.filters),
         count=req.count,
         k=req.k,
     )
-

@@ -1,9 +1,10 @@
 import streamlit as st
 import httpx
-from config import Settings
-from interfaces.styles import GLOBAL_CSS
 
-_API=Settings.api_url
+from src.config import settings
+from src.interfaces.styles import GLOBAL_CSS
+
+_API = settings.api_url
 
 def _api(method,path,**kwargs):
     return httpx.request(
@@ -15,28 +16,31 @@ def _api(method,path,**kwargs):
 
 def _sidebar():
     st.sidebar.title("RAG Learning System")
-    uploaded=st.sidebar.file_uploader(
-        "up load pdf",
-        type=["pdf"]
+
+    uploaded = st.sidebar.file_uploader(
+        "Upload PDF",
+        type=["pdf"],
     )
+
     if uploaded:
         if st.sidebar.button("Upload"):
-            files={
-                "file":(
-                uploaded.name,
-                uploaded.getvalue(),
-                "application/pdf")
+            files = {
+                "file": (
+                    uploaded.name,
+                    uploaded.getvalue(),
+                    "application/pdf",
+                )
             }
 
-        res=_api("POST","/upload",files=files)
+            res = _api("POST", "/upload", files=files)
 
-        if res.status_code==200:
-            st.sidebar.success(
-            "upload thanh cong")
-        else:
-            st.sidebar.error("upload that bai")
+            if res.status_code == 200:
+                st.sidebar.success("Upload thành công")
+            else:
+                st.sidebar.error("Upload thất bại")
+                st.sidebar.write(res.text)
 
-    return [],None
+    return [], None
 
 def _tab_chat(filenames,page):
     question=st.text_input(

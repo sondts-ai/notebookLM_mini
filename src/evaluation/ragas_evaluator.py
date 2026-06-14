@@ -21,42 +21,47 @@ def get_ragas_metrics(llm,embeddings):
     context_recall.embeddings=embeddings
     return [faithfulness,answer_relevancy,context_precision,context_recall]
 
-def run_evaluation(test_case:list[dict[str,str]],*, 
-answer_fn: Callable[[str], RagAnswer] = default_answer_fn,
-llm_provider:str |None=None,timeout_s:int=180,max_retries:int=3,
-max_workers:int=4):
-    data={
-        "user_input":[],
-        "response":[],
-        "retrieved_contexts":[],
-        "reference":[]
+def run_evaluation(
+    test_case: list[dict[str, str]],
+    *,
+    answer_fn: Callable[[str], RagAnswer] = default_answer_fn,
+    llm_provider: str | None = None,
+    timeout_s: int = 180,
+    max_retries: int = 3,
+    max_workers: int = 4,
+):
+    data = {
+        "user_input": [],
+        "response": [],
+        "retrieved_contexts": [],
+        "reference": [],
     }
-    
+
     for case in test_case:
+        rag_response = answer_fn(case["question"])
+
         data["user_input"].append(case["question"])
         data["response"].append(rag_response.answer)
         data["retrieved_contexts"].append([chunk.text for chunk in rag_response.chunks])
         data["reference"].append(case["ground_truth"])
 
-    eval_dataset=Dataset.from_dict(data)
-    llm = LangchainLLMWrapper(
-        get_llm(provider=llm_provider)
-    )
-    embeddings = LangchainEmbeddingsWrapper(
-        get_embeddings()
-    )
+    eval_dataset = Dataset.from_dict(data)
 
-    metrics=get_ragas_metrics(llm,embeddings)
+    llm = LangchainLLMWrapper(get_llm(provider=llm_provider))
+    embeddings = LangchainEmbeddingsWrapper(get_embeddings())
 
-    config=RunConfig(
+    metrics = get_ragas_metrics(llm, embeddings)
+
+    config = RunConfig(
         timeout=timeout_s,
         max_retries=max_retries,
-        max_workers=max_workers
+        max_workers=max_workers,
     )
+
     return evaluate(
         dataset=eval_dataset,
         metrics=metrics,
         llm=llm,
         embeddings=embeddings,
-        run_config=config
+        run_config=config,
     )
